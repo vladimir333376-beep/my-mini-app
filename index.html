@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Выбери стиль приглашения</title>
+  <title>Создать приглашение</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,26 +16,26 @@
       min-height: 100vh;
     }
 
-    /* Заголовок */
+    /* Общие стили экранов */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
     .header {
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
-
     .header h1 {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       letter-spacing: -0.5px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
-
     .header p {
       font-size: 14px;
       opacity: 0.6;
-      font-weight: 400;
     }
 
-    /* Сетка карточек */
+    /* ---------- Сетка карточек ---------- */
     .grid {
       display: flex;
       flex-direction: column;
@@ -44,55 +44,26 @@
       margin: 0 auto;
     }
 
-    /* Карточка */
     .card {
       position: relative;
       border-radius: 20px;
       padding: 24px;
       cursor: pointer;
       overflow: hidden;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s ease;
       border: none;
       text-align: left;
       font-family: inherit;
       color: inherit;
       width: 100%;
     }
+    .card:active { transform: scale(0.98); }
 
-    .card:active {
-      transform: scale(0.98);
-    }
+    .card-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .card-subtitle { font-size: 14px; margin-bottom: 14px; opacity: 0.75; line-height: 1.4; }
+    .card-desc { font-size: 13px; line-height: 1.5; opacity: 0.65; margin-bottom: 16px; }
+    .card-arrow { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
 
-    .card-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      letter-spacing: -0.3px;
-    }
-
-    .card-subtitle {
-      font-size: 14px;
-      margin-bottom: 14px;
-      opacity: 0.75;
-      line-height: 1.4;
-    }
-
-    .card-desc {
-      font-size: 13px;
-      line-height: 1.5;
-      opacity: 0.65;
-      margin-bottom: 16px;
-    }
-
-    .card-arrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    /* Стиль Blush */
     .card--blush {
       background: linear-gradient(135deg, #fdf0f2 0%, #f8d7dd 100%);
       color: #6b3540;
@@ -100,7 +71,6 @@
     .card--blush .card-title { color: #8a3d4d; }
     .card--blush .card-arrow { color: #c2617a; }
 
-    /* Стиль Midnight */
     .card--midnight {
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       color: #e8e8f0;
@@ -108,7 +78,6 @@
     .card--midnight .card-title { color: #ffffff; }
     .card--midnight .card-arrow { color: #8b9dc3; }
 
-    /* Стиль Minimal */
     .card--minimal {
       background: #ffffff;
       color: #1a1a1a;
@@ -117,125 +86,207 @@
     .card--minimal .card-title { color: #000000; }
     .card--minimal .card-arrow { color: #555555; }
 
-    /* Адаптация под тёмную тему Telegram */
     @media (prefers-color-scheme: dark) {
-      .card--minimal {
-        background: #1c1c1e;
-        color: #f0f0f0;
-        border-color: #2c2c2e;
-      }
+      .card--minimal { background: #1c1c1e; color: #f0f0f0; border-color: #2c2c2e; }
       .card--minimal .card-title { color: #ffffff; }
       .card--minimal .card-arrow { color: #a0a0a0; }
     }
 
-    /* Стрелка */
-    .arrow-icon {
-      width: 16px;
-      height: 16px;
-      transition: transform 0.2s ease;
+    .arrow-icon { width: 16px; height: 16px; }
+
+    /* ---------- Форма ---------- */
+    .form-container {
+      max-width: 480px;
+      margin: 0 auto;
     }
 
-    .card:hover .arrow-icon {
-      transform: translateX(4px);
+    .field {
+      margin-bottom: 18px;
     }
-
-    /* Экран "выбрано" */
-    .selected-screen {
-      display: none;
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    .selected-screen.visible {
+    .field label {
       display: block;
-    }
-
-    .selected-screen h2 {
-      font-size: 22px;
-      margin-bottom: 12px;
-    }
-
-    .selected-screen p {
-      font-size: 15px;
+      font-size: 13px;
+      font-weight: 600;
       opacity: 0.7;
-      margin-bottom: 24px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1.5px solid var(--tg-theme-hint-color, #e5e5e5);
+      background: var(--tg-theme-secondary-bg-color, #ffffff);
+      color: var(--tg-theme-text-color, #1a1a1a);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .field input:focus,
+    .field textarea:focus {
+      border-color: #c2617a;
+    }
+    .field textarea {
+      resize: vertical;
+      min-height: 80px;
     }
 
-    .btn-back {
-      background: #3b82f6;
-      color: white;
-      border: none;
-      padding: 14px 32px;
+    /* Кнопки */
+    .btn {
+      width: 100%;
+      padding: 15px;
       border-radius: 12px;
+      border: none;
       font-size: 15px;
       font-weight: 600;
-      cursor: pointer;
       font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.1s ease;
+    }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: #c2617a;
+      color: #ffffff;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--tg-theme-link-color, #3b82f6);
+      margin-top: 10px;
     }
 
-    .btn-back:active {
-      opacity: 0.85;
+    /* Превью выбранного стиля сверху формы */
+    .style-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+    .style-badge.blush { background: #f8d7dd; color: #8a3d4d; }
+    .style-badge.midnight { background: #16213e; color: #ffffff; }
+    .style-badge.minimal { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
+
+    /* Экран успеха */
+    .success {
+      text-align: center;
+      padding: 60px 20px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .success-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    .success h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    .success p {
+      font-size: 15px;
+      opacity: 0.7;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
 
-  <!-- Экран выбора -->
-  <div id="screen-choose">
+  <!-- ========== ЭКРАН 1: ВЫБОР СТИЛЯ ========== -->
+  <div id="screen-choose" class="screen active">
     <div class="header">
       <h1>Выбери стиль приглашения</h1>
       <p>Каждый шаблон создаёт своё настроение</p>
     </div>
 
     <div class="grid">
-
-      <!-- Blush -->
       <button class="card card--blush" onclick="selectStyle('Blush')">
         <div class="card-title">Blush</div>
         <div class="card-subtitle">Нежное приглашение — мягкий розовый стиль</div>
         <div class="card-desc">Светлый, нежный и романтичный стиль для первого вау-эффекта.</div>
         <div class="card-arrow">
           Выбрать
-          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
       </button>
 
-      <!-- Midnight -->
       <button class="card card--midnight" onclick="selectStyle('Midnight')">
         <div class="card-title">Midnight</div>
-        <div class="card-subtitle">У меня к тебе вопрос... — dark cinematic luxury</div>
+        <div class="card-subtitle">У меня к тебе вопрос... — dark cinematic</div>
         <div class="card-desc">Тёмный cinematic-вайб, glow и ощущение настоящей интриги.</div>
         <div class="card-arrow">
           Выбрать
-          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
       </button>
 
-      <!-- Minimal -->
       <button class="card card--minimal" onclick="selectStyle('Minimal')">
         <div class="card-title">Minimal</div>
-        <div class="card-subtitle">Встретимся? — чисто, спокойно, элегантно</div>
+        <div class="card-subtitle">Встретимся? — чисто и элегантно</div>
         <div class="card-desc">Минимализм без ванили — красиво, взросло и спокойно.</div>
         <div class="card-arrow">
           Выбрать
-          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
       </button>
-
     </div>
   </div>
 
-  <!-- Экран после выбора -->
-  <div id="screen-selected" class="selected-screen">
-    <h2 id="selected-title">Ты выбрал: —</h2>
-    <p>Следующий шаг — заполнить данные приглашения.</p>
-    <button class="btn-back" onclick="goBack()">← Выбрать другой стиль</button>
+  <!-- ========== ЭКРАН 2: ФОРМА ========== -->
+  <div id="screen-form" class="screen">
+    <div class="form-container">
+      <div class="header">
+        <h1>Заполни приглашение</h1>
+        <p>Эти данные увидит получатель</p>
+      </div>
+
+      <div id="style-badge-container"></div>
+
+      <div class="field">
+        <label>Кому</label>
+        <input type="text" id="input-to" placeholder="Имя гостя" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>От кого</label>
+        <input type="text" id="input-from" placeholder="Ваше имя" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Событие</label>
+        <input type="text" id="input-event" placeholder="Например: Свидание" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Дата и время</label>
+        <input type="text" id="input-date" placeholder="Например: 20 сентября, 19:00" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Место</label>
+        <input type="text" id="input-place" placeholder="Например: Кафе на Тверской" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Сообщение (необязательно)</label>
+        <textarea id="input-message" placeholder="Тёплые слова для получателя..."></textarea>
+      </div>
+
+      <button class="btn btn-primary" onclick="submitInvite()">Готово</button>
+      <button class="btn btn-secondary" onclick="goBackToChoose()">← Выбрать другой стиль</button>
+    </div>
+  </div>
+
+  <!-- ========== ЭКРАН 3: УСПЕХ ========== -->
+  <div id="screen-success" class="screen">
+    <div class="success">
+      <div class="success-icon">✨</div>
+      <h2>Приглашение готово!</h2>
+      <p>Данные отправлены в чат. Открой его, чтобы увидеть результат.</p>
+    </div>
   </div>
 
   <script>
@@ -243,25 +294,61 @@
     tg.ready();
     tg.expand();
 
-    let currentStyle = null;
+    let selectedStyle = null;
 
-    function selectStyle(style) {
-      currentStyle = style;
-      console.log('Выбран стиль:', style);
-
-      // Показать экран "выбрано"
-      document.getElementById('screen-choose').style.display = 'none';
-      document.getElementById('screen-selected').classList.add('visible');
-      document.getElementById('selected-title').textContent = `Ты выбрал: ${style}`;
-
-      // Позже здесь можно:
-      // 1. Отправить выбор в бота: tg.sendData(JSON.stringify({ style }));
-      // 2. Или переключиться на форму заполнения данных
+    // ----- Переключение экранов -----
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo(0, 0);
     }
 
-    function goBack() {
-      document.getElementById('screen-choose').style.display = 'block';
-      document.getElementById('screen-selected').classList.remove('visible');
+    // ----- Выбор стиля -----
+    function selectStyle(style) {
+      selectedStyle = style;
+      console.log('Выбран стиль:', style);
+
+      // Обновляем бейдж стиля на форме
+      const badgeClass = style.toLowerCase();
+      document.getElementById('style-badge-container').innerHTML =
+        `<span class="style-badge ${badgeClass}">Стиль: ${style}</span>`;
+
+      showScreen('screen-form');
+    }
+
+    // ----- Назад к выбору -----
+    function goBackToChoose() {
+      showScreen('screen-choose');
+    }
+
+    // ----- Отправка формы -----
+    function submitInvite() {
+      const data = {
+        style: selectedStyle,
+        to: document.getElementById('input-to').value.trim(),
+        from: document.getElementById('input-from').value.trim(),
+        event: document.getElementById('input-event').value.trim(),
+        date: document.getElementById('input-date').value.trim(),
+        place: document.getElementById('input-place').value.trim(),
+        message: document.getElementById('input-message').value.trim()
+      };
+
+      // Простая проверка: имя получателя обязательно
+      if (!data.to) {
+        tg.showAlert('Пожалуйста, укажи, кому адресовано приглашение');
+        return;
+      }
+
+      console.log('Отправляем данные:', data);
+
+      // Показываем экран успеха
+      showScreen('screen-success');
+
+      // Отправляем данные в бота
+      // ВАЖНО: sendData работает только в Mini App, открытом через кнопку меню или inline-кнопку
+      if (tg.sendData) {
+        tg.sendData(JSON.stringify(data));
+      }
     }
   </script>
 

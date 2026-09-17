@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мой Mini App</title>
+  <!-- ШАГ 1: Подключаем Telegram SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 16px;
+      /* Автоматически подстраивается под тему Telegram */
+      background: var(--tg-theme-bg-color, #ffffff);
+      color: var(--tg-theme-text-color, #000000);
+    }
+    h1 { font-size: 24px; }
+  </style>
+</head>
+<body>
+  <h1>Привет, Mini App!</h1>
+  <p>Эта страница открыта внутри Telegram.</p>
+
+  <script>
+    // ШАГ 2: Инициализируем SDK
+    const tg = window.Telegram.WebApp;
+    
+    // Сообщаем Telegram, что страница готова к показу
+    tg.ready();
+    
+    // Разворачиваем окно на весь экран
+    tg.expand();
+
+    // ШАГ 3: Получаем данные пользователя (если нужно)
+    const user = tg.initDataUnsafe.user;
+    if (user) {
+      console.log('Имя:', user.first_name);
+      console.log('ID:', user.id);
+    }
+  </script>
+</body>
+</html>

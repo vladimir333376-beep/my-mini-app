@@ -3,41 +3,267 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мой Mini App</title>
-  <!-- ШАГ 1: Подключаем Telegram SDK -->
+  <title>Выбери стиль приглашения</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      margin: 0;
-      padding: 16px;
-      /* Автоматически подстраивается под тему Telegram */
-      background: var(--tg-theme-bg-color, #ffffff);
-      color: var(--tg-theme-text-color, #000000);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--tg-theme-bg-color, #fafafa);
+      color: var(--tg-theme-text-color, #1a1a1a);
+      padding: 20px 16px 40px;
+      min-height: 100vh;
     }
-    h1 { font-size: 24px; }
+
+    /* Заголовок */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.6;
+      font-weight: 400;
+    }
+
+    /* Сетка карточек */
+    .grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Карточка */
+    .card {
+      position: relative;
+      border-radius: 20px;
+      padding: 24px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: none;
+      text-align: left;
+      font-family: inherit;
+      color: inherit;
+      width: 100%;
+    }
+
+    .card:active {
+      transform: scale(0.98);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+
+    .card-subtitle {
+      font-size: 14px;
+      margin-bottom: 14px;
+      opacity: 0.75;
+      line-height: 1.4;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      line-height: 1.5;
+      opacity: 0.65;
+      margin-bottom: 16px;
+    }
+
+    .card-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Стиль Blush */
+    .card--blush {
+      background: linear-gradient(135deg, #fdf0f2 0%, #f8d7dd 100%);
+      color: #6b3540;
+    }
+    .card--blush .card-title { color: #8a3d4d; }
+    .card--blush .card-arrow { color: #c2617a; }
+
+    /* Стиль Midnight */
+    .card--midnight {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e8e8f0;
+    }
+    .card--midnight .card-title { color: #ffffff; }
+    .card--midnight .card-arrow { color: #8b9dc3; }
+
+    /* Стиль Minimal */
+    .card--minimal {
+      background: #ffffff;
+      color: #1a1a1a;
+      border: 1.5px solid #e5e5e5;
+    }
+    .card--minimal .card-title { color: #000000; }
+    .card--minimal .card-arrow { color: #555555; }
+
+    /* Адаптация под тёмную тему Telegram */
+    @media (prefers-color-scheme: dark) {
+      .card--minimal {
+        background: #1c1c1e;
+        color: #f0f0f0;
+        border-color: #2c2c2e;
+      }
+      .card--minimal .card-title { color: #ffffff; }
+      .card--minimal .card-arrow { color: #a0a0a0; }
+    }
+
+    /* Стрелка */
+    .arrow-icon {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover .arrow-icon {
+      transform: translateX(4px);
+    }
+
+    /* Экран "выбрано" */
+    .selected-screen {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .selected-screen.visible {
+      display: block;
+    }
+
+    .selected-screen h2 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .selected-screen p {
+      font-size: 15px;
+      opacity: 0.7;
+      margin-bottom: 24px;
+    }
+
+    .btn-back {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-back:active {
+      opacity: 0.85;
+    }
   </style>
 </head>
 <body>
-  <h1>Привет, Mini App!</h1>
-  <p>Эта страница открыта внутри Telegram.</p>
+
+  <!-- Экран выбора -->
+  <div id="screen-choose">
+    <div class="header">
+      <h1>Выбери стиль приглашения</h1>
+      <p>Каждый шаблон создаёт своё настроение</p>
+    </div>
+
+    <div class="grid">
+
+      <!-- Blush -->
+      <button class="card card--blush" onclick="selectStyle('Blush')">
+        <div class="card-title">Blush</div>
+        <div class="card-subtitle">Нежное приглашение — мягкий розовый стиль</div>
+        <div class="card-desc">Светлый, нежный и романтичный стиль для первого вау-эффекта.</div>
+        <div class="card-arrow">
+          Выбрать
+          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </button>
+
+      <!-- Midnight -->
+      <button class="card card--midnight" onclick="selectStyle('Midnight')">
+        <div class="card-title">Midnight</div>
+        <div class="card-subtitle">У меня к тебе вопрос... — dark cinematic luxury</div>
+        <div class="card-desc">Тёмный cinematic-вайб, glow и ощущение настоящей интриги.</div>
+        <div class="card-arrow">
+          Выбрать
+          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </button>
+
+      <!-- Minimal -->
+      <button class="card card--minimal" onclick="selectStyle('Minimal')">
+        <div class="card-title">Minimal</div>
+        <div class="card-subtitle">Встретимся? — чисто, спокойно, элегантно</div>
+        <div class="card-desc">Минимализм без ванили — красиво, взросло и спокойно.</div>
+        <div class="card-arrow">
+          Выбрать
+          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Экран после выбора -->
+  <div id="screen-selected" class="selected-screen">
+    <h2 id="selected-title">Ты выбрал: —</h2>
+    <p>Следующий шаг — заполнить данные приглашения.</p>
+    <button class="btn-back" onclick="goBack()">← Выбрать другой стиль</button>
+  </div>
 
   <script>
-    // ШАГ 2: Инициализируем SDK
     const tg = window.Telegram.WebApp;
-    
-    // Сообщаем Telegram, что страница готова к показу
     tg.ready();
-    
-    // Разворачиваем окно на весь экран
     tg.expand();
 
-    // ШАГ 3: Получаем данные пользователя (если нужно)
-    const user = tg.initDataUnsafe.user;
-    if (user) {
-      console.log('Имя:', user.first_name);
-      console.log('ID:', user.id);
+    let currentStyle = null;
+
+    function selectStyle(style) {
+      currentStyle = style;
+      console.log('Выбран стиль:', style);
+
+      // Показать экран "выбрано"
+      document.getElementById('screen-choose').style.display = 'none';
+      document.getElementById('screen-selected').classList.add('visible');
+      document.getElementById('selected-title').textContent = `Ты выбрал: ${style}`;
+
+      // Позже здесь можно:
+      // 1. Отправить выбор в бота: tg.sendData(JSON.stringify({ style }));
+      // 2. Или переключиться на форму заполнения данных
+    }
+
+    function goBack() {
+      document.getElementById('screen-choose').style.display = 'block';
+      document.getElementById('screen-selected').classList.remove('visible');
     }
   </script>
+
 </body>
 </html>
